@@ -22,17 +22,19 @@ func main() {
 	var s []string
 	for {
 		line, err := reader.ReadString('\n')
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
+		if err != nil && err != io.EOF {
 			_, err := fmt.Fprint(os.Stderr)
 			if err != nil {
 				return
 			}
 			os.Exit(1)
 		}
-		s = append(s, line)
+		if len(line) > 0 {
+			s = append(s, line)
+		}
+		if err == io.EOF {
+			break
+		}
 	}
 	for i := 0; i < len(s); i++ {
 		translated, err := translation("EN", "ZH", s[i])
@@ -95,7 +97,6 @@ func getICount(translateText string) int64 {
 }
 
 func getRandomNumber() int64 {
-	rand.Seed(time.Now().Unix())
 	num := rand.Int63n(99999) + 8300000
 	return num * 1000
 }
@@ -173,7 +174,12 @@ func translation(sourceLang string, targetLang string, translateText string) (st
 		log.Println(err)
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			os.Exit(1)
+		}
+	}(resp.Body)
 
 	var bodyReader io.Reader
 	switch resp.Header.Get("Content-Encoding") {
