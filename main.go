@@ -47,6 +47,7 @@ func main() {
 			if err != nil {
 				return
 			}
+			os.Exit(1)
 		}
 		fmt.Printf("%s", translated)
 	}
@@ -123,9 +124,6 @@ func translation(sourceLang string, targetLang string, translateText string) (st
 		deepLLang := strings.ToUpper(lang.Iso6391())
 		sourceLang = deepLLang
 	}
-	if targetLang == "" {
-		targetLang = "EN"
-	}
 	text := Text{
 		Text:                translateText,
 		RequestAlternatives: 3,
@@ -169,7 +167,7 @@ func translation(sourceLang string, targetLang string, translateText string) (st
 	request.Header.Set("x-app-device", "iPhone13,2")
 	request.Header.Set("User-Agent", "DeepL-iOS/2.9.1 iOS 16.3.0 (iPhone13,2)")
 	request.Header.Set("x-app-build", "510265")
-	request.Header.Set("x-app-version", "2.9.1")
+	request.Header.Set("x-app-version", "2.9.2")
 	request.Header.Set("Connection", "keep-alive")
 
 	client := &http.Client{}
@@ -201,7 +199,10 @@ func translation(sourceLang string, targetLang string, translateText string) (st
 	//fmt.Print(res.Get("result.texts.0.text").String())
 
 	if res.Get("error.code").String() == "-32600" {
-		return "", fmt.Errorf("%s", res.Get("error").String())
+		return "", fmt.Errorf("%s", res.Get("error.data.what").String())
+	}
+	if res.Get("error.code").String() == "1042912" || res.Get("error.code").String() == "1042911" {
+		return "", fmt.Errorf("%s", res.Get("error.message").String())
 	}
 	if resp.StatusCode == http.StatusTooManyRequests {
 		return "", fmt.Errorf("%s", res.Get("error").String())
