@@ -18,6 +18,10 @@ import (
 )
 
 func main() {
+	var targetLang = "ZH"
+	if len(os.Args) == 2 {
+		targetLang = os.Args[1]
+	}
 	reader := bufio.NewReader(os.Stdin)
 	var s []string
 	for {
@@ -37,7 +41,7 @@ func main() {
 		}
 	}
 	for i := 0; i < len(s); i++ {
-		translated, err := translation("EN", "ZH", s[i])
+		translated, err := translation("EN", targetLang, s[i])
 		if err != nil {
 			_, err := fmt.Fprintf(os.Stderr, "Translation error: %v\n", err)
 			if err != nil {
