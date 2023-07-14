@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/abadojack/whatlanggo"
 	"github.com/andybalholm/brotli"
@@ -18,9 +19,11 @@ import (
 )
 
 func main() {
+	showOrigin := flag.Bool("o", false, "Include the original text in the output")
+	flag.Parse()
 	var targetLang = "ZH"
-	if len(os.Args) == 2 {
-		targetLang = os.Args[1]
+	if len(flag.Args()) > 0 {
+		targetLang = flag.Args()[0]
 	}
 	reader := bufio.NewReader(os.Stdin)
 	var s []string
@@ -50,6 +53,11 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Printf("%s", translated)
+		if *showOrigin {
+			if s[i] != "\n" {
+				_, _ = fmt.Printf("--> %s", s[i])
+			}
+		}
 	}
 }
 
