@@ -87,6 +87,9 @@ func Translation(sourceLang string, targetLang string, translateText string) (st
 		deepLLang := strings.ToUpper(lang.Iso6391())
 		sourceLang = deepLLang
 	}
+	if targetLang == "" {
+		targetLang = "ZH"
+	}
 	text := Text{
 		Text:                translateText,
 		RequestAlternatives: 3,
